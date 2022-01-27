@@ -31,6 +31,8 @@ impl Shape for fj::Sweep {
         let mut top_faces = original_faces.clone();
         top_faces.transform(&Isometry::translation(0.0, 0.0, self.length));
 
+        // TASK: Make the rest of this triangle-less too.
+
         // This will only work correctly, if the original shape consists of one
         // edge. If there are more, this will create some kind of weird face
         // chimera, a single face to represent all the side faces.
