@@ -6,9 +6,11 @@ use parry3d_f64::{bounding_volume::AABB, math::Isometry};
 use crate::{
     debug::DebugInfo,
     kernel::{
+        geometry::Surface,
         topology::{
-            edges::Edges,
+            edges::{self, Edges},
             faces::{Face, Faces},
+            vertices::Vertex,
         },
         Shape,
     },
@@ -31,7 +33,51 @@ impl Shape for fj::Sweep {
         let mut top_faces = original_faces.clone();
         top_faces.transform(&Isometry::translation(0.0, 0.0, self.length));
 
-        // TASK: Make the rest of this triangle-less too.
+        let mut side_faces = Vec::new();
+        for cycle in self.shape.edges().cycles {
+            for edge in cycle.edges {
+                let length = vector![self.length];
+
+                let mut top_edge = edge.clone();
+                top_edge.transform(&Isometry::translation(
+                    0.0,
+                    0.0,
+                    self.length,
+                ));
+
+                // TASK: If we can sweep lines into planes, then `Plane` becomes
+                //       redundant.
+                let surface = Surface::sweep_from(edge.curve.clone(), length);
+
+                let edges = match edge.vertices {
+                    Some([a, b]) => {
+                        let a = edge.curve.point_curve_to_model(a);
+                        let b = edge.curve.point_curve_to_model(b);
+
+                        // TASK: These point in the same direction, thus not
+                        //       really forming a cycle in the most perfect
+                        //       sense. Shouldn't matter, but I don't know if
+                        //       triangulation can handle it.
+                        let a = Vertex::from(a).sweep(length);
+                        let b = Vertex::from(b).sweep(length);
+
+                        Edges::single_cycle([edge, a, top_edge, b])
+                    }
+                    None => Edges {
+                        // TASK: This construct can't be triangulated with the
+                        //       current algorithm.
+                        cycles: vec![
+                            edges::Cycle { edges: vec![edge] },
+                            edges::Cycle {
+                                edges: vec![top_edge],
+                            },
+                        ],
+                    },
+                };
+
+                side_faces.push(Face::Face { edges, surface });
+            }
+        }
 
         // This will only work correctly, if the original shape consists of one
         // edge. If there are more, this will create some kind of weird face

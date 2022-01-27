@@ -36,6 +36,12 @@ impl Curve {
         }
     }
 
+    // TASK: Document.
+    pub fn point_curve_to_model(&self, point: Point<1>) -> Point<3> {
+        // TASK: Implement.
+        todo!()
+    }
+
     pub fn approx_vertices(&self, tolerance: f64, out: &mut Vec<Point<3>>) {
         match self {
             Self::Circle(circle) => circle.approx_vertices(tolerance, out),

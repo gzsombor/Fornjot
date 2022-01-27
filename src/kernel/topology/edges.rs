@@ -241,6 +241,12 @@ impl Edge {
         self.reverse = !self.reverse;
     }
 
+    // TASK: Document.
+    pub fn transform(&mut self, transform: &Isometry<f64>) {
+        // TASK: Implement.
+        todo!()
+    }
+
     /// Compute vertices to approximate the edge
     ///
     /// `tolerance` defines how far the implicit line segments between those

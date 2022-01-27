@@ -3,6 +3,8 @@ use parry3d_f64::math::Isometry;
 
 use crate::math::{Point, Vector};
 
+use super::Curve;
+
 /// A two-dimensional shape
 #[derive(Clone, Debug, PartialEq)]
 pub enum Surface {
@@ -18,6 +20,12 @@ impl Surface {
             u: vector![1., 0., 0.],
             v: vector![0., 1., 0.],
         })
+    }
+
+    // TASK: Document.
+    pub fn sweep_from(curve: Curve, path: Vector<1>) -> Self {
+        // TASK: Implement.
+        todo!()
     }
 
     /// Transform the surface
