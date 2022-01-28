@@ -10,7 +10,7 @@ use crate::{
             edges::Edges,
             faces::{Face, Faces},
         },
-        Shape,
+        Shape, geometry,
     },
     math::Point,
 };
@@ -22,8 +22,13 @@ impl Shape for fj::Sweep {
         aabb
     }
 
-    fn faces(&self, tolerance: f64, debug_info: &mut DebugInfo) -> Faces {
-        let original_faces = self.shape.faces(tolerance, debug_info);
+    fn faces(
+        &self,
+        tolerance: f64,
+        cache: &mut geometry::Cache,
+        debug_info: &mut DebugInfo,
+    ) -> Faces {
+        let original_faces = self.shape.faces(tolerance, cache, debug_info);
 
         let mut bottom_faces = original_faces.clone();
         bottom_faces.transform(&Isometry::rotation(vector![PI, 0., 0.]));

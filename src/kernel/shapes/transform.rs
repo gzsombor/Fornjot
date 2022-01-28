@@ -3,6 +3,7 @@ use parry3d_f64::{bounding_volume::AABB, math::Isometry};
 use crate::{
     debug::DebugInfo,
     kernel::{
+        geometry,
         topology::{edges::Edges, faces::Faces},
         Shape,
     },
@@ -14,8 +15,13 @@ impl Shape for fj::Transform {
         self.shape.bounding_volume().transform_by(&isometry(self))
     }
 
-    fn faces(&self, tolerance: f64, debug_info: &mut DebugInfo) -> Faces {
-        let mut faces = self.shape.faces(tolerance, debug_info);
+    fn faces(
+        &self,
+        tolerance: f64,
+        cache: &mut geometry::Cache,
+        debug_info: &mut DebugInfo,
+    ) -> Faces {
+        let mut faces = self.shape.faces(tolerance, cache, debug_info);
         let isometry = isometry(self);
 
         for face in &mut faces.0 {
