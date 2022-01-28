@@ -31,7 +31,7 @@ impl Shape for fj::Transform {
         faces
     }
 
-    fn edges(&self) -> Edges {
+    fn edges(&self, _: &mut geometry::Cache) -> Edges {
         todo!()
     }
 
