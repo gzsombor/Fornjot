@@ -1,4 +1,3 @@
-use nalgebra::point;
 use parry3d_f64::bounding_volume::AABB;
 
 use crate::{
@@ -33,7 +32,7 @@ impl Shape for fj::Sketch {
         Faces(vec![face])
     }
 
-    fn edges(&self, _: &mut geometry::Cache) -> Edges {
+    fn edges(&self, cache: &mut geometry::Cache) -> Edges {
         let v = match self.vertices() {
             vertices if vertices.is_empty() => vertices,
             mut vertices => {
@@ -54,11 +53,20 @@ impl Shape for fj::Sketch {
             let start = window[0];
             let end = window[1];
 
+            // TASK: Do we need store ids to cached geometry here too? Why not?
+            //       Why would the cache purely be a topological thing?
             let line = Curve::Line(Line {
                 origin: start,
+                // TASK: Maybe this is a mistake. It might be better to define
+                //       a line by two points. Then we can just store those in
+                //       the cache.
                 dir: end - start,
             });
-            let edge = Edge::new(line, point![0.], point![1.]);
+
+            let start = cache.insert(start);
+            let end = cache.insert(end);
+
+            let edge = Edge::new(line, start, end);
 
             edges.push(edge);
         }
@@ -66,6 +74,13 @@ impl Shape for fj::Sketch {
         Edges::single_cycle(edges)
     }
 
+    // TASK: This isn't right. We have 2-dimensional points, but here we return
+    //       3-dimensional points. In the approximations, we started going back
+    //       to lower dimensions.
+    //
+    //       Because for triangulation, we want to operate in surface
+    //       coordinates again. That was required to make the triangulation
+    //       simple/flexible enough to support transformations of b-rep faces.
     fn vertices(&self) -> Vec<Point<3>> {
         self.to_points()
             .into_iter()
